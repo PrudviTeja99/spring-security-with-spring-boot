@@ -5,4 +5,6 @@ import com.teja.securedapis.model.AuthResponse;
 
 public interface AuthService {
     AuthResponse userLogin(AuthRequest authRequest);
+
+    AuthResponse userRegiser(AuthRequest authRequest);
 }

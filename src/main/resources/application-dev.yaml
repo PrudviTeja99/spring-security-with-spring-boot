@@ -2,5 +2,18 @@ spring:
   application:
     name: securedapis
 
+  datasource:
+    url: jdbc:postgresql://localhost:5433/security
+    username: admin
+    password: admin
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+
 jwt:
   secretKey: "slfselfjsejfsfiosfisisdhfsfseoifseiofsfsosssfsfs"
