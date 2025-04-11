@@ -4,19 +4,29 @@ import com.teja.securedapis.model.AuthRequest;
 import com.teja.securedapis.model.AuthResponse;
 import com.teja.securedapis.service.AuthService;
 import com.teja.securedapis.util.JwtUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
     private JwtUtil jwtUtil;
+    private AuthenticationManager authenticationManager;
+    private UserDetailsService userDetailsService;
 
-    public AuthServiceImpl(JwtUtil jwtUtil) {
+    public AuthServiceImpl(JwtUtil jwtUtil, AuthenticationManager authenticationManager, UserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
+        this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
     }
 
     @Override
     public AuthResponse userLogin(AuthRequest authRequest) {
-        String token = jwtUtil.generateToken();
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),authRequest.getPassword()));
+        UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
+        String token = jwtUtil.generateToken(userDetails.getUsername());
         return new AuthResponse(token);
     }
 }

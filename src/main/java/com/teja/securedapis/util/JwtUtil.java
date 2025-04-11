@@ -16,9 +16,9 @@ import java.util.function.Function;
 public class JwtUtil {
     @Value(value = "${jwt.secretKey}")
     private String secretKey;
-    public String generateToken(){
+    public String generateToken(String username){
         JwtBuilder jwtBuilder = Jwts.builder()
-                .subject("username")
+                .subject(username)
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1800000))
                 .signWith(getSecretKey());
