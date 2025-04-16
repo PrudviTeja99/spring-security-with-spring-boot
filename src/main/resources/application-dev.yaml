@@ -17,3 +17,6 @@ spring:
 
 jwt:
   secretKey: "slfselfjsejfsfiosfisisdhfsfseoifseiofsfsosssfsfs"
+  expiry:
+    accessToken: 1800000
+    refreshToken: 43200000

@@ -26,4 +26,8 @@ public class AuthController {
     public ResponseEntity<AuthResponse> userRegister(@RequestBody AuthRequest authRequest){
         return ResponseEntity.ok(authService.userRegiser(authRequest));
     }
+    @PostMapping(value = "/refresh")
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody AuthRequest authRequest){
+        return ResponseEntity.ok(authService.userRefresh(authRequest));
+    }
 }

@@ -30,7 +30,8 @@ public class AuthServiceImpl implements AuthService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),authRequest.getPassword()));
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtil.generateToken(userDetails.getUsername());
-        return new AuthResponse(token);
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
+        return new AuthResponse(token,refreshToken);
     }
 
     @Override
@@ -43,6 +44,12 @@ public class AuthServiceImpl implements AuthService {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),authRequest.getPassword()));
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtil.generateToken(userDetails.getUsername());
-        return new AuthResponse(token);
+        String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
+        return new AuthResponse(token,refreshToken);
+    }
+
+    @Override
+    public AuthResponse userRefresh(AuthRequest authRequest){
+        return null;
     }
 }

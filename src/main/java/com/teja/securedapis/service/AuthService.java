@@ -7,4 +7,6 @@ public interface AuthService {
     AuthResponse userLogin(AuthRequest authRequest);
 
     AuthResponse userRegiser(AuthRequest authRequest);
+
+    AuthResponse userRefresh(AuthRequest authRequest);
 }
