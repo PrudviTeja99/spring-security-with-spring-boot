@@ -1,6 +1,7 @@
 package com.teja.securedapis.service.impl;
 
 import com.teja.securedapis.entity.UserEntity;
+import com.teja.securedapis.model.AuthRefreshTokenRequest;
 import com.teja.securedapis.model.AuthRequest;
 import com.teja.securedapis.model.AuthResponse;
 import com.teja.securedapis.service.AuthService;
@@ -27,6 +28,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse userLogin(AuthRequest authRequest) {
+        //TODO Handle unauthorized exception
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequest.getUsername(),authRequest.getPassword()));
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtil.generateToken(userDetails.getUsername());
@@ -36,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse userRegiser(AuthRequest authRequest) {
+        //TODO Handle unauthorized exception
         UserEntity userEntity = new UserEntity();
         userEntity.setPassword(passwordEncoder.encode(authRequest.getPassword()));
         userEntity.setUsername(authRequest.getUsername());
@@ -45,11 +48,33 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtil.generateToken(userDetails.getUsername());
         String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
+        //TODO Save user refresh token in database as a user session
         return new AuthResponse(token,refreshToken);
     }
 
     @Override
-    public AuthResponse userRefresh(AuthRequest authRequest){
-        return null;
+    public AuthResponse userRefresh(AuthRefreshTokenRequest authRefreshTokenRequest){
+
+        boolean isRefreshTokenValid = jwtUtil.isRefreshTokenValid(authRefreshTokenRequest.getRefreshToken());
+        if(isRefreshTokenValid){
+            String username = jwtUtil.fetchUsername(authRefreshTokenRequest.getRefreshToken());
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            boolean isValidUser = jwtUtil.isValidUser(authRefreshTokenRequest.getRefreshToken(), userDetails);
+            if(isValidUser){
+                //TODO Invalidate refresh token
+                String token = jwtUtil.generateToken(userDetails.getUsername());
+                String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
+                //TODO Add user refresh token in database a user session
+                return new AuthResponse(token,refreshToken);
+            }
+            else{
+                //TODO Created proper unauthorized exception
+                throw new RuntimeException("Username not found");
+            }
+        }
+        else{
+            //TODO Created proper unauthorized exception
+            throw new RuntimeException("Unauthorized Exception");
+        }
     }
 }

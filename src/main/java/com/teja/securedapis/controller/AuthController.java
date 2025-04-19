@@ -1,5 +1,6 @@
 package com.teja.securedapis.controller;
 
+import com.teja.securedapis.model.AuthRefreshTokenRequest;
 import com.teja.securedapis.model.AuthRequest;
 import com.teja.securedapis.model.AuthResponse;
 import com.teja.securedapis.service.AuthService;
@@ -27,7 +28,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.userRegiser(authRequest));
     }
     @PostMapping(value = "/refresh")
-    public ResponseEntity<AuthResponse> refreshToken(@RequestBody AuthRequest authRequest){
-        return ResponseEntity.ok(authService.userRefresh(authRequest));
+    public ResponseEntity<AuthResponse> refreshToken(@RequestBody AuthRefreshTokenRequest authRefreshTokenRequest){
+        return ResponseEntity.ok(authService.userRefresh(authRefreshTokenRequest));
     }
 }
