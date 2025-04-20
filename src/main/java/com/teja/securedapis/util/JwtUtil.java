@@ -60,9 +60,31 @@ public class JwtUtil {
         return fetchUsername(token).equals(userDetails.getUsername());
     }
 
+    public RefreshTokenEntity createUserSessionInDatabase(String refreshToken){
+        Optional<RefreshTokenEntity> refreshTokenEntity = refreshTokenRepository.findByToken(refreshToken);
+        if(refreshTokenEntity.isEmpty()){
+            RefreshTokenEntity userSession = new RefreshTokenEntity();
+            userSession.setToken(refreshToken);
+            userSession.setExpiry(Instant.now().plusMillis(refreshTokenExpiry));
+            userSession = refreshTokenRepository.save(userSession);
+            return userSession;
+        }
+        else{
+            throw new RuntimeException("User session already exists");
+        }
+    }
     public boolean isRefreshTokenValid(String refreshToken){
         Optional<RefreshTokenEntity> refreshTokenOptional = refreshTokenRepository.findByTokenAndExpiryAfter(refreshToken, Instant.now());
         return refreshTokenOptional.isPresent();
+    }
+    public void invalidateRefreshToken(String refreshToken){
+        Optional<RefreshTokenEntity> refreshTokenOptional = refreshTokenRepository.findByToken(refreshToken);
+        if(refreshTokenOptional.isPresent()){
+            refreshTokenRepository.delete(refreshTokenOptional.get());
+        }
+        else{
+            throw new RuntimeException("User session does not exists !!");
+        }
     }
 
     public String fetchUsername(String token) {

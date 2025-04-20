@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface RefreshTokenRepository extends JpaRepository<RefreshTokenEntity,String> {
     Optional<RefreshTokenEntity> findByTokenAndExpiryAfter(String token, Instant expiry);
+    Optional<RefreshTokenEntity> findByToken(String token);
 }

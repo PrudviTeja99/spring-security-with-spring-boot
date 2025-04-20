@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
-    private JwtUtil jwtUtil;
-    private AuthenticationManager authenticationManager;
-    private UserServiceImpl userDetailsService;
-    private PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
+    private final AuthenticationManager authenticationManager;
+    private final UserServiceImpl userDetailsService;
+    private final PasswordEncoder passwordEncoder;
 
     public AuthServiceImpl(JwtUtil jwtUtil, AuthenticationManager authenticationManager, UserServiceImpl userDetailsService, PasswordEncoder passwordEncoder) {
         this.jwtUtil = jwtUtil;
@@ -33,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtil.generateToken(userDetails.getUsername());
         String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
+        jwtUtil.createUserSessionInDatabase(refreshToken);
         return new AuthResponse(token,refreshToken);
     }
 
@@ -48,7 +49,8 @@ public class AuthServiceImpl implements AuthService {
         UserDetails userDetails = userDetailsService.loadUserByUsername(authRequest.getUsername());
         String token = jwtUtil.generateToken(userDetails.getUsername());
         String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
-        //TODO Save user refresh token in database as a user session
+        //Save user refresh token in database as a user session
+        jwtUtil.createUserSessionInDatabase(refreshToken);
         return new AuthResponse(token,refreshToken);
     }
 
@@ -61,10 +63,11 @@ public class AuthServiceImpl implements AuthService {
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             boolean isValidUser = jwtUtil.isValidUser(authRefreshTokenRequest.getRefreshToken(), userDetails);
             if(isValidUser){
-                //TODO Invalidate refresh token
+                jwtUtil.invalidateRefreshToken(authRefreshTokenRequest.getRefreshToken());
                 String token = jwtUtil.generateToken(userDetails.getUsername());
                 String refreshToken = jwtUtil.generateRefreshToken(userDetails.getUsername());
-                //TODO Add user refresh token in database a user session
+                //Add user refresh token in database a user session
+                jwtUtil.createUserSessionInDatabase(refreshToken);
                 return new AuthResponse(token,refreshToken);
             }
             else{
