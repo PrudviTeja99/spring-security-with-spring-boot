@@ -1,26 +1,47 @@
 package com.teja.securedapis.util;
 
+import com.teja.securedapis.entity.RefreshTokenEntity;
+import com.teja.securedapis.repository.RefreshTokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 import java.util.function.Function;
 
 @Component
 public class JwtUtil {
     @Value(value = "${jwt.secretKey}")
     private String secretKey;
+    @Value(value = "${jwt.expiry.accessToken}")
+    private long accessTokenExpiry;
+    @Value(value = "${jwt.expiry.refreshToken}")
+    private long refreshTokenExpiry;
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
     public String generateToken(String username){
         JwtBuilder jwtBuilder = Jwts.builder()
                 .subject(username)
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1800000))
+                .expiration(new Date(System.currentTimeMillis() + accessTokenExpiry))
+                .signWith(getSecretKey());
+        return jwtBuilder.compact();
+    }
+
+    public String generateRefreshToken(String username){
+        JwtBuilder jwtBuilder = Jwts.builder()
+                .subject(username)
+                .expiration(new Date(System.currentTimeMillis() + refreshTokenExpiry))
+                .issuedAt(new Date())
                 .signWith(getSecretKey());
         return jwtBuilder.compact();
     }
@@ -37,6 +58,33 @@ public class JwtUtil {
 
     public boolean isValidUser(String token,UserDetails userDetails){
         return fetchUsername(token).equals(userDetails.getUsername());
+    }
+
+    public RefreshTokenEntity createUserSessionInDatabase(String refreshToken){
+        Optional<RefreshTokenEntity> refreshTokenEntity = refreshTokenRepository.findByToken(refreshToken);
+        if(refreshTokenEntity.isEmpty()){
+            RefreshTokenEntity userSession = new RefreshTokenEntity();
+            userSession.setToken(refreshToken);
+            userSession.setExpiry(Instant.now().plusMillis(refreshTokenExpiry));
+            userSession = refreshTokenRepository.save(userSession);
+            return userSession;
+        }
+        else{
+            throw new RuntimeException("User session already exists");
+        }
+    }
+    public boolean isRefreshTokenValid(String refreshToken){
+        Optional<RefreshTokenEntity> refreshTokenOptional = refreshTokenRepository.findByTokenAndExpiryAfter(refreshToken, Instant.now());
+        return refreshTokenOptional.isPresent();
+    }
+    public void invalidateRefreshToken(String refreshToken){
+        Optional<RefreshTokenEntity> refreshTokenOptional = refreshTokenRepository.findByToken(refreshToken);
+        if(refreshTokenOptional.isPresent()){
+            refreshTokenRepository.delete(refreshTokenOptional.get());
+        }
+        else{
+            throw new RuntimeException("User session does not exists !!");
+        }
     }
 
     public String fetchUsername(String token) {
