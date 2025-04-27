@@ -1,7 +1,6 @@
 package com.teja.securedapis.filter;
 
 import com.teja.securedapis.util.JwtUtil;
-import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

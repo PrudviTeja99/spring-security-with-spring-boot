@@ -1,5 +1,6 @@
 package com.teja.securedapis.entity;
 
+import com.teja.securedapis.model.ROLE;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,6 +12,8 @@ public class UserEntity {
     private String username;
     @Column(nullable = false)
     private String password;
+    @Enumerated(EnumType.STRING)
+    private ROLE role;
 
     public String getId() {
         return id;
@@ -36,12 +39,21 @@ public class UserEntity {
         this.password = password;
     }
 
+    public ROLE getRole() {
+        return role;
+    }
+
+    public void setRole(ROLE role) {
+        this.role = role;
+    }
+
     @Override
     public String toString() {
-        return "User{" +
+        return "UserEntity{" +
                 "id='" + id + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
+                ", role=" + role +
                 '}';
     }
 }

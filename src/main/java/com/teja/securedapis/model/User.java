@@ -1,6 +1,7 @@
 package com.teja.securedapis.model;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -11,11 +12,13 @@ public class User implements UserDetails {
     private String id;
     private String username;
     private String password;
+    private ROLE role;
 
-    public User(String id, String username, String password) {
+    public User(String id, String username, String password, ROLE role) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.role = role;
     }
 
     public String getId() {
@@ -28,7 +31,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority("ROLE_"+role.name()));
     }
 
     @Override

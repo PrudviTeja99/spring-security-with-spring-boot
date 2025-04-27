@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserDetailsService {
         User userModel = null;
         if(optionalUser.isPresent()){
             UserEntity userEntity = optionalUser.get();
-            userModel = new com.teja.securedapis.model.User(userEntity.getId(), userEntity.getUsername(), userEntity.getPassword());
+            userModel = new com.teja.securedapis.model.User(userEntity.getId(), userEntity.getUsername(), userEntity.getPassword(),userEntity.get);
         }
         else{
             throw new UsernameNotFoundException("Unable to find username");
